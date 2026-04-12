@@ -1,7 +1,7 @@
 // src/types/index.ts
 
 import { Request } from "express";
-import { Role } from "../generated/prisma/enums";
+import { Role } from "../generated/prisma/enums.js";
 
 
 // ── Multer — req.file এর জন্য ─────────────────────────────────
