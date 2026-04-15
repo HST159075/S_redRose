@@ -66,6 +66,7 @@ export const auth = betterAuth({
       sameSite: "lax",
       secure: false,
     },
+    disableDefaultAllAllowedOrigins: false,
   },
 });
 
