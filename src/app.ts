@@ -10,7 +10,6 @@ import routes from "./routes/index.js";
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ── Uploads folder তৈরি করো (না থাকলে) ────────────────────────
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });

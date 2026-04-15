@@ -56,7 +56,11 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: [process.env.FRONTEND_URL || "https://red-rose-seven.vercel.app"],
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://red-rose-seven.vercel.app",
+  ],
   advanced: {
     defaultCookieAttributes: {
       sameSite: "lax",
