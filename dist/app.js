@@ -42,6 +42,9 @@ app.get("/health", (_req, res) => {
         timestamp: new Date().toISOString(),
     });
 });
+app.get("/", (req, res) => {
+    res.send("Server-Rose is running...!!");
+});
 // ── 404 Handler ─────────────────────────────────────────────────
 app.use("*all", (req, res) => {
     res.status(404).json({
