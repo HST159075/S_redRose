@@ -3,7 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email.js";
 export const auth = betterAuth({
-    baseURL: "http://localhost:5000",
+    baseURL: "https://s-redrose-1.onrender.com",
     basePath: "/api/auth",
     database: prismaAdapter(prisma, {
         provider: "postgresql",
@@ -19,7 +19,7 @@ export const auth = betterAuth({
         sendOnSignUp: true,
         autoSignInAfterVerification: true,
         expiresIn: 60 * 60 * 24,
-        callbackURL: "http://localhost:3000/login",
+        callbackURL: "https://red-rose-seven.vercel.app/login",
         sendVerificationEmail: async ({ user, url }) => {
             await sendVerificationEmail(user.email, user.name, url);
         },
@@ -48,7 +48,7 @@ export const auth = betterAuth({
             },
         },
     },
-    trustedOrigins: [process.env.FRONTEND_URL || "http://localhost:3000"],
+    trustedOrigins: [process.env.FRONTEND_URL || "https://red-rose-seven.vercel.app"],
     advanced: {
         defaultCookieAttributes: {
             sameSite: "lax",

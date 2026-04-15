@@ -20,10 +20,10 @@ if (!fs.existsSync(uploadDir)) {
 app.use(
   cors({
      origin: [
-      process.env.FRONTEND_URL ?? "http://localhost:3000",
+      process.env.FRONTEND_URL ?? "https://red-rose-seven.vercel.app",
       "http://localhost:5173",
-      "http://localhost:3000",
-      "http://localhost:5000", 
+      "https://red-rose-seven.vercel.app",
+      "https://s-redrose-1.onrender.com", 
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
