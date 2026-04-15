@@ -24,8 +24,7 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
-// ⚡ Better Auth — /api/auth/* সব route এটাই handle করে
-// এটা express.json() এর আগে থাকতে হবে
+app.set("trust proxy", 1);
 app.all("/api/auth/*all", toNodeHandler(auth));
 // ── Body Parsers ────────────────────────────────────────────────
 app.use(express.json());
