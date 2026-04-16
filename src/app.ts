@@ -18,16 +18,16 @@ if (!fs.existsSync(uploadDir)) {
 // ── CORS ────────────────────────────────────────────────────────
 app.use(
   cors({
-     origin: [
+    origin: [
       process.env.FRONTEND_URL ?? "https://red-rose-seven.vercel.app",
       "http://localhost:5173",
       "https://red-rose-seven.vercel.app",
-      "https://s-redrose-1.onrender.com", 
+      "https://s-redrose-1.onrender.com",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.set("trust proxy", 1);
@@ -51,10 +51,9 @@ app.get("/health", (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
-app.get("/",(req, res) => {
-res.send("Server-Rose is running...!!")
-})
-
+app.get("/", (req, res) => {
+  res.send("Server-Rose is running...!!");
+});
 
 // ── 404 Handler ─────────────────────────────────────────────────
 app.use("*all", (req: Request, res: Response) => {
@@ -70,14 +69,14 @@ app.use(
     err: Error & { status?: number },
     _req: Request,
     res: Response,
-    _next: NextFunction
+    _next: NextFunction,
   ) => {
     console.error("❌ Error:", err.message);
     res.status(err.status ?? 500).json({
       success: false,
       message: err.message ?? "Internal Server Error",
     });
-  }
+  },
 );
 
 export default app;

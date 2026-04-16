@@ -8,6 +8,19 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
+    trustedOrigins: [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://red-rose-seven.vercel.app",
+    ],
+    advanced: {
+        defaultCookieAttributes: {
+            sameSite: "none",
+            secure: true,
+            partitioned: true,
+        },
+        disableDefaultAllAllowedOrigins: false,
+    },
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true,
@@ -47,18 +60,5 @@ export const auth = betterAuth({
                 input: false,
             },
         },
-    },
-    trustedOrigins: [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://red-rose-seven.vercel.app",
-    ],
-    advanced: {
-        defaultCookieAttributes: {
-            sameSite: "none",
-            secure: true,
-            partitioned: true,
-        },
-        disableDefaultAllAllowedOrigins: false,
     },
 });
