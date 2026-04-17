@@ -9,28 +9,24 @@ const isProd = process.env.NODE_ENV === "production";
 export const auth = betterAuth({
     baseURL: BACKEND_URL,
     basePath: "/api/auth",
-    database: prismaAdapter(prisma, {
-        provider: "postgresql",
-    }),
+    database: prismaAdapter(prisma, { provider: "postgresql" }),
     trustedOrigins: [
         FRONTEND_URL,
         BACKEND_URL,
+        "https://*.vercel.app",
         "http://localhost:3000",
         "http://localhost:5173",
     ],
     advanced: {
+        // Proxy pattern এ same-site হবে তাই Lax যথেষ্ট
         defaultCookieAttributes: {
             sameSite: isProd ? "none" : "lax",
             secure: isProd,
             httpOnly: true,
             path: "/",
         },
-        disableDefaultAllAllowedOrigins: false,
-        // Cross-origin session handle করতে
-        crossSubDomainCookies: {
-            enabled: false,
-        },
         useSecureCookies: isProd,
+        disableDefaultAllAllowedOrigins: false,
     },
     emailAndPassword: {
         enabled: true,
