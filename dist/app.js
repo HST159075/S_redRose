@@ -1,3 +1,4 @@
+// src/app.ts
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -8,55 +9,69 @@ import { auth } from "./lib/auth.js";
 import routes from "./routes/index.js";
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const FRONTEND_URL = process.env.FRONTEND_URL ?? "https://red-rose-seven.vercel.app";
+// ── Uploads folder ────────────────────────────────────────────
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-// ── CORS ────────────────────────────────────────────────────────
+// ── Trust proxy (Render / cloud এর জন্য জরুরি) ───────────────
+// CORS এর আগে থাকতে হবে
+app.set("trust proxy", 1);
+// ── CORS ──────────────────────────────────────────────────────
+const allowedOrigins = [
+    FRONTEND_URL,
+    "http://localhost:3000",
+    "http://localhost:5173",
+];
 app.use(cors({
-    origin: [
-        process.env.FRONTEND_URL ?? "https://red-rose-seven.vercel.app",
-        "http://localhost:5173",
-        "https://red-rose-seven.vercel.app",
-        "https://s-redrose-1.onrender.com",
-    ],
+    origin: (origin, callback) => {
+        // No origin = server-to-server, allow
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.includes(origin))
+            return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"],
 }));
-app.set("trust proxy", 1);
+// ── Preflight OPTIONS ─────────────────────────────────────────
+app.options("*", cors());
+// ── Better Auth handler (body parser এর আগে) ──────────────────
 app.all("/api/auth/*all", toNodeHandler(auth));
-// ── Body Parsers ────────────────────────────────────────────────
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-// ── Static Files (Uploaded Images) ─────────────────────────────
+// ── Body Parsers ──────────────────────────────────────────────
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// ── Static Files ──────────────────────────────────────────────
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-// ── API Routes ──────────────────────────────────────────────────
+// ── API Routes ────────────────────────────────────────────────
 app.use("/api", routes);
-// ── Health Check ────────────────────────────────────────────────
+// ── Health Check ──────────────────────────────────────────────
 app.get("/health", (_req, res) => {
     res.json({
         success: true,
-        message: "Red Rose Cosmetic Shop API is running 🌹",
+        message: "Red Rose API running 🌹",
         timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV,
     });
 });
-app.get("/", (req, res) => {
-    res.send("Server-Rose is running...!!");
+app.get("/", (_req, res) => {
+    res.send("Server-Rose is running!!");
 });
-// ── 404 Handler ─────────────────────────────────────────────────
+// ── 404 ──────────────────────────────────────────────────────
 app.use("*all", (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: `Route ${req.originalUrl} not found`,
-    });
+    res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
 });
-// ── Global Error Handler ────────────────────────────────────────
+// ── Error Handler ─────────────────────────────────────────────
 app.use((err, _req, res, _next) => {
+    const isDev = process.env.NODE_ENV !== "production";
     console.error("❌ Error:", err.message);
     res.status(err.status ?? 500).json({
         success: false,
-        message: err.message ?? "Internal Server Error",
+        message: isDev ? err.message : "Something went wrong",
     });
 });
 export default app;

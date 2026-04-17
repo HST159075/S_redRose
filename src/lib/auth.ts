@@ -1,32 +1,48 @@
+// src/lib/auth.ts
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email.js";
 
+const FRONTEND_URL =
+  process.env.FRONTEND_URL ?? "https://red-rose-seven.vercel.app";
+const BACKEND_URL =
+  process.env.BETTER_AUTH_URL ?? "https://s-redrose-1.onrender.com";
+const isProd = process.env.NODE_ENV === "production";
+
 export const auth = betterAuth({
-  baseURL: "https://s-redrose-1.onrender.com",
+  baseURL: BACKEND_URL,
   basePath: "/api/auth",
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+
   trustedOrigins: [
+    FRONTEND_URL,
+    BACKEND_URL,
     "http://localhost:3000",
     "http://localhost:5173",
-    "https://red-rose-seven.vercel.app",
   ],
+
   advanced: {
     defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
-      partitioned: true,
+      sameSite: isProd ? "none" : "lax",
+      secure: isProd,
+      httpOnly: true,
+      path: "/",
     },
     disableDefaultAllAllowedOrigins: false,
+    // Cross-origin session handle করতে
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    useSecureCookies: isProd,
   },
 
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail(user.email, user.name, url);
     },
@@ -36,7 +52,7 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60 * 24,
-    callbackURL: "https://red-rose-seven.vercel.app/login",
+    callbackURL: `${FRONTEND_URL}/auth/login`,
     sendVerificationEmail: async ({ user, url }) => {
       await sendVerificationEmail(user.email, user.name, url);
     },
@@ -46,6 +62,7 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      redirectURI: `${BACKEND_URL}/api/auth/callback/google`,
     },
   },
 
